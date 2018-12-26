@@ -4,7 +4,7 @@
         "commonjs": true,
         "es6": true
     },
-    "extends": "eslint:recommended",
+    "extends": "plugin:react/recommended",
     "parserOptions": {
         "ecmaFeatures": {
             "jsx": true
@@ -16,6 +16,7 @@
         "react"
     ],
     "rules": {
+        "no-console": "off",
         "indent": [
             "warn",
             "tab"
@@ -31,6 +32,10 @@
         "semi": [
             "error",
             "always"
+        ],
+        "no-unused-vars": [
+            "warn", 
+            { "vars": "all", "args": "after-used", "ignoreRestSiblings": false, "argsIgnorePattern": "^_" }
         ]
     }
 }

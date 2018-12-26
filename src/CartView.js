@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import './CartApp.css';
 
@@ -5,10 +6,14 @@ class CartView extends Component {
 
 	constructor(props) {
 		super(props);
-		this.state = { cart: [] };
+		this.state = { cart: this.props.cart };
 	}
 
-	componentDidMount() {
+	componentWillReceiveProps(nextProps) {
+		this.setState({cart: nextProps.cart});
+	}
+	
+	componentWillMount() {
 		fetch('http://localhost:3200/cart', {
 			method: 'GET',
 			headers: {
@@ -20,32 +25,39 @@ class CartView extends Component {
 			.then(json => { this.setState({ cart: json });
 			});
 	}
-
+	
 	render() {
+
 		return (
 			<div>
-				<table>
-					<tr><th>Id</th><th>Item</th><th>Quantity</th></tr>
+				
+				
+				<table><tbody>
+					<tr key='headrow'><th>Id</th><th>Item</th><th>Quantity</th></tr>
 					{
-						this.state.cart.map((item =>
-							<tr>
-								<td key="{item.id}">{item.id}</td>
-								<td key="{item.id}">{item.name}</td>
-								<td key="{item.id}">{item.quantity}</td>
+						this.state.cart.map(((item, index) =>
+							<tr className='itemRow' role='row' key={index}>
+								<td>{item.id}</td>
+								<td>{item.name}</td>	
+								<td>{item.quantity}</td>
 							</tr>
 						))
 					}
-				</table>
+				</tbody></table> 
 			</div>
 		);
 
 	
 	}
 
-	update() {
-		this.setState();
-	}
-
 }
 
+CartView.propTypes = {
+	cart: PropTypes.arrayOf({
+		id: PropTypes.number,
+		name: PropTypes.string,
+		quantity: PropTypes.number
+	  }
+	)
+};
 export default CartView;
