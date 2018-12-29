@@ -6,38 +6,58 @@ class CartForm extends Component {
 
 	constructor(props) {
 		super(props);
-		this.state = {
-			id: '',
-			name: '',
-			quantity: ''
-		};
-
+		this.currentItem = {id: props.selectedItem.id, name: props.selectedItem.name, quantity: props.selectedItem.quantity, price: props.selectedItem.price};
 		this.handleIdChange = this.handleIdChange.bind(this);
+		this.handleIdBlur = this.handleIdBlur.bind(this);
 		this.handleNameChange = this.handleNameChange.bind(this);
 		this.handleQuantityChange = this.handleQuantityChange.bind(this);
+		this.handlePriceChange = this.handlePriceChange.bind(this);
 		this.handleAdd = this.handleAdd.bind(this);
 		this.handleUpdate = this.handleUpdate.bind(this);
 		this.handleRemove = this.handleRemove.bind(this);
+		this.updateForm = this.updateForm.bind(this);
 
 	}
+	
+
+
+	updateForm(item){
+		this.currentItem = {id: item.id, name: item.name, quantity: item.quantity, price: item.price};
+		this.forceUpdate();
+	}
+
 
 	handleIdChange(event) {
-		this.setState({ id: event.target.value });
+		this.currentItem.id = event.target.value;
+		this.props.itemInView(event.target.value);
+		this.forceUpdate();
+	}
+
+	handleIdBlur(event) {
+		var item = this.props.getItem(event.target.value);
+		this.updateForm(item);
 	}
 
 	handleNameChange(event) {
-		this.setState({ name: event.target.value });
+		this.currentItem.name = event.target.value;
+		this.forceUpdate();
 	}
 
 	handleQuantityChange(event) {
-		this.setState({ quantity: event.target.value });
+		this.currentItem.quantity = event.target.value;
+		this.forceUpdate();
+	}
+
+	handlePriceChange(event){
+		this.currentItem.price = event.target.value;
+		this.forceUpdate();
 	}
 
 	handleAdd(event) {
 		let request = require('request');
 		let options = {
 			method: 'post',
-			body: this.state,
+			body: this.currentItem,
 			json: true,
 			url: 'http://localhost:3200/cart'
 		};
@@ -46,16 +66,16 @@ class CartForm extends Component {
 			this.props.submitFunc();
 		}.bind(this));
 		event.preventDefault();
+		
 	}
 
 	handleRemove(event) {
 		let request = require('request');
-		let item = this.state;
 		let urlString = 'http://localhost:3200/cart/';
-		urlString += item.id;
+		urlString += this.currentItem.id;
 		let options = {
 			method: 'delete',
-			body: item,
+			body: this.currentItem,
 			json: true,
 			url: urlString
 		};
@@ -70,12 +90,11 @@ class CartForm extends Component {
 
 	handleUpdate(event) {
 		let request = require('request');
-		let item = this.state;
 		let urlString = 'http://localhost:3200/cart/';
-		urlString += item.id;
+		urlString += this.currentItem.id;
 		let options = {
 			method: 'patch',
-			body: item,
+			body: this.currentItem,
 			json: true,
 			url: urlString
 		};
@@ -92,11 +111,13 @@ class CartForm extends Component {
 			<form >
 				<table><tbody>
 					<tr>
-						<th>Id</th><td colSpan='2'><input type="text" value={this.state.id} onChange={this.handleIdChange} /></td>
+						<th>Id</th><td colSpan='2'><input type="text" value={this.currentItem.id} onChange={this.handleIdChange} onBlur={this.handleIdBlur}/></td>
 					</tr><tr>
-						<th>Name</th><td colSpan='2'><input type="text" value={this.state.name} onChange={this.handleNameChange} /></td>
+						<th>Name</th><td colSpan='2'><input type="text" value={this.currentItem.name} onChange={this.handleNameChange} /></td>
 					</tr><tr>
-						<th>Quantity</th><td colSpan='2'><input type="text" value={this.state.quantity} onChange={this.handleQuantityChange} /></td>
+						<th>Quantity</th><td colSpan='2'><input type="text" value={this.currentItem.quantity} onChange={this.handleQuantityChange} /></td>
+					</tr><tr>
+						<th>Price</th><td colSpan='2'><input type="text" value={this.currentItem.price} onChange={this.handlePriceChange} /></td>
 					</tr><tr>
 						<td><button onClick={this.handleAdd}>Add</button></td>
 						<td><button onClick={this.handleRemove}>Remove</button></td>
@@ -110,6 +131,7 @@ class CartForm extends Component {
 }
 
 CartForm.propTypes = {
-	submitFunc: PropTypes.func
+	submitFunc: PropTypes.func,
+	itemInView: PropTypes.func
 };
 export default CartForm;
